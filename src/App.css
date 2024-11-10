@@ -7,7 +7,12 @@
  * Custom Properties for keeping the CSS 'DRY'!
  */
 :root {
-  --background-color: #f7f7f7;
+  --background-color: #f0f0f0;
+  --color-grey: #344860;
+  --color-grey-light: #dddddd;
+  --color-grey-lighter: #e0e0e0;
+  --color-grey-dark: #666666;
+  --color-blue: #2c8ff2;
 }
 
 /**
@@ -34,9 +39,8 @@ body {
  * A container for the game.
  */
 .container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Adjust this value to control the vertical centering */
+  max-width: 700px;
+  min-width: 270px;
   margin: 0 auto;
+  padding: 0 10px;
 }
