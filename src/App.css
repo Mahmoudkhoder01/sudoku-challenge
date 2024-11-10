@@ -1,38 +1,42 @@
-.App {
-  text-align: center;
+/**
+ * Import Google Fonts.
+ */
+@import url("https://fonts.googleapis.com/css?family=Teko|Noto+Sans|Source+Sans+Pro:300,400,600");
+
+/**
+ * Custom Properties for keeping the CSS 'DRY'!
+ */
+:root {
+  --background-color: #f7f7f7;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/**
+ * CSS Resets for all elements.
+ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/**
+ * Declare default values here.
+ */
+body {
+  background: var(--background-color);
+  color: var(--color-blue);
+  font-family: "Source Sans Pro", sans-serif;
+  line-height: 1.4em;
+  font-weight: 300;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/**
+ * A container for the game.
+ */
+.container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  align-items: center;
+  height: 100vh; /* Adjust this value to control the vertical centering */
+  margin: 0 auto;
 }
