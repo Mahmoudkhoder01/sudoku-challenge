@@ -1,15 +1,14 @@
-// BoardSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { generateBoard, removeCellsFromBoard } from "../Functions/sudoku";
 
 interface BoardState {
   board: number[][];
-  lockedCells: Set<string>;
+  lockedCells: string[];
 }
 
 const initialState: BoardState = {
   board: [],
-  lockedCells: new Set(),
+  lockedCells: [],
 };
 
 const boardSlice = createSlice({
@@ -19,12 +18,15 @@ const boardSlice = createSlice({
     setBoard(state, action: PayloadAction<number[][]>) {
       state.board = action.payload;
     },
-    setLockedCells(state, action: PayloadAction<Set<string>>) {
+    setLockedCells(state, action: PayloadAction<string[]>) {
       state.lockedCells = action.payload;
     },
     resetGame(
       state,
-      action: PayloadAction<{ board: number[][]; lockedCells: Set<string> }>
+      action: PayloadAction<{
+        board: number[][];
+        lockedCells: string[];
+      }>
     ) {
       state.board = action.payload.board;
       state.lockedCells = action.payload.lockedCells;
@@ -47,8 +49,7 @@ const boardSlice = createSlice({
       });
 
       state.board = newBoard;
-
-      state.lockedCells = newLockedCells;
+      state.lockedCells = Array.from(newLockedCells); // Convert Set to Array
     },
   },
 });

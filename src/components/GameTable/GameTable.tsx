@@ -6,17 +6,24 @@ import "./GameTable.css";
 
 const GameTable = () => {
   const board = useSelector((state: RootState) => state.board.board);
-  const lockedCells = useSelector(
+
+  const difficulty = useSelector(
+    (state: RootState) => state.difficulty.difficulty
+  );
+
+  const lockedCellsArray = useSelector(
     (state: RootState) => state.board.lockedCells
   );
+
+  const lockedCells = new Set(lockedCellsArray);
 
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    if (board.length === 0) {
+    if (board.length === 0 && difficulty) {
       dispatch(generateNewGame(50));
     }
-  }, [board, dispatch]);
+  }, [board, dispatch, difficulty]);
 
   return (
     <section className="game">
