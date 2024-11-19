@@ -1,7 +1,6 @@
 .game_board {
   font-family: "Noto Sans", sans-serif;
   font-size: 26px;
-  margin: 30px 0;
   border: 2px solid var(--color-grey-dark);
   border-collapse: collapse;
 }
@@ -50,4 +49,9 @@
 .sudoku_cell[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+.sudoku_cell[readonly] {
+  color: var(--color-blue);
+  cursor: not-allowed;
 }
