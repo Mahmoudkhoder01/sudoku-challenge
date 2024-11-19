@@ -29,7 +29,6 @@
  */
 body {
   background: var(--background-color);
-  color: var(--color-blue);
   font-family: "Source Sans Pro", sans-serif;
   line-height: 1.4em;
   font-weight: 300;
@@ -48,4 +47,8 @@ body {
 .inner-container {
   display: flex;
   margin: 30px 0;
+}
+
+.game-side-section {
+  margin-left: 10px;
 }
