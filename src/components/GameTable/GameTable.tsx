@@ -4,7 +4,11 @@ import { RootState, AppDispatch } from "../../redux/store";
 import { generateNewGame, setBoard } from "../../redux/BoardSlice";
 import "./GameTable.css";
 
-const GameTable = () => {
+interface GameTableProps {
+  setSelectedCell: (cell: { row: number; col: number } | null) => void;
+}
+
+const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
   const board = useSelector((state: RootState) => state.board.board);
 
   const difficulty = useSelector(
@@ -38,6 +42,9 @@ const GameTable = () => {
                   <td
                     className={`game_cell ${isLocked ? "locked" : ""}`}
                     key={`${rowIndex}-${colIndex}`}
+                    onClick={() =>
+                      setSelectedCell({ row: rowIndex, col: colIndex })
+                    } // Set the selected cell
                   >
                     <input
                       type="text"
