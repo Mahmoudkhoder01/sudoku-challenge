@@ -1,13 +1,20 @@
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
 import { generateNewGame } from "../../redux/BoardSlice";
 import "./Header.css";
+import { getCellsToRemove } from "../../Functions/sudoku";
 
 const Header = () => {
   const dispatch = useDispatch<AppDispatch>();
 
+  const difficulty = useSelector(
+    (state: RootState) => state.difficulty.difficulty
+  );
+
   const handleNewGame = () => {
-    dispatch(generateNewGame(50));
+    const cellsToRemove = getCellsToRemove(difficulty);
+
+    dispatch(generateNewGame(cellsToRemove));
   };
 
   return (
