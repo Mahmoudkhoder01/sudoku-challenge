@@ -3,11 +3,13 @@ import { generateBoard, removeCellsFromBoard } from "../Functions/sudoku";
 
 interface BoardState {
   board: number[][];
+  fullBoard: number[][];
   lockedCells: string[];
 }
 
 const initialState: BoardState = {
   board: [],
+  fullBoard: [],
   lockedCells: [],
 };
 
@@ -17,6 +19,9 @@ const boardSlice = createSlice({
   reducers: {
     setBoard(state, action: PayloadAction<number[][]>) {
       state.board = action.payload;
+    },
+    setFullBoard(state, action: PayloadAction<number[][]>) {
+      state.fullBoard = action.payload;
     },
     setLockedCells(state, action: PayloadAction<string[]>) {
       state.lockedCells = action.payload;
@@ -36,6 +41,9 @@ const boardSlice = createSlice({
 
       const newBoard = generateBoard();
 
+      // Save the full board before modifying it
+      state.fullBoard = newBoard.map((row) => [...row]);
+
       removeCellsFromBoard(newBoard, difficulty);
 
       const newLockedCells = new Set<string>();
@@ -49,6 +57,7 @@ const boardSlice = createSlice({
       });
 
       state.board = newBoard;
+
       state.lockedCells = Array.from(newLockedCells); // Convert Set to Array
     },
   },
