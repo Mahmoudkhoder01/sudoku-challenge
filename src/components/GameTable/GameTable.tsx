@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../redux/store";
 import { generateNewGame, setBoard } from "../../redux/BoardSlice";
 import "./GameTable.css";
+import { setDifficulty } from "../../redux/DifficultySlice";
 
 interface GameTableProps {
   setSelectedCell: (cell: { row: number; col: number } | null) => void;
@@ -10,10 +11,6 @@ interface GameTableProps {
 
 const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
   const board = useSelector((state: RootState) => state.board.board);
-
-  const difficulty = useSelector(
-    (state: RootState) => state.difficulty.difficulty
-  );
 
   const lockedCellsArray = useSelector(
     (state: RootState) => state.board.lockedCells
@@ -24,10 +21,24 @@ const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    if (board.length === 0 && difficulty) {
-      dispatch(generateNewGame(50));
+    if (board.length === 0) {
+      const difficulties = [30, 40, 50];
+
+      const randomCellsToRemove =
+        difficulties[Math.floor(Math.random() * difficulties.length)];
+
+      dispatch(generateNewGame(randomCellsToRemove));
+
+      // Set the difficulty based on the number of cells
+      if (randomCellsToRemove === 30) {
+        dispatch(setDifficulty("Easy"));
+      } else if (randomCellsToRemove === 40) {
+        dispatch(setDifficulty("Medium"));
+      } else if (randomCellsToRemove === 50) {
+        dispatch(setDifficulty("Hard"));
+      }
     }
-  }, [board, dispatch, difficulty]);
+  }, [board, dispatch]);
 
   return (
     <section className="game">

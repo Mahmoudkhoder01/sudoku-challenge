@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   width: 150px;
+  margin: 0 auto;
 }
 
 .status_number {

@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { generateNewGame } from "../../redux/BoardSlice";
-import "./Header.css";
 import { getCellsToRemove } from "../../Functions/sudoku";
+import "./Header.css";
 
 const Header = () => {
   const dispatch = useDispatch<AppDispatch>();

@@ -28,8 +28,8 @@ const Difficulty = () => {
       <select
         name="status_difficulty-select"
         className="status_difficulty-select"
-        value={difficulty} // Use value instead of defaultValue for controlled component
-        onChange={handleDifficultyChange} // Use the new handler
+        value={difficulty}
+        onChange={handleDifficultyChange}
       >
         <option value="Easy">Easy</option>
         <option value="Medium">Medium</option>

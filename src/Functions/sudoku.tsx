@@ -63,6 +63,7 @@ function getSubgridValidCells(
     if (originalCellValue !== 0) {
       continue;
     }
+
     board[cellIndex[1]][cellIndex[0]] = answer;
 
     if (isRowValid(board, cellIndex[1]) && isColumnValid(board, cellIndex[0])) {
@@ -135,3 +136,17 @@ export function removeCellsFromBoard(board: number[][], numberOfCells: number) {
     availableCells.splice(cellListIndex, 1);
   }
 }
+
+// Function to get the number of cells to remove based on difficulty
+export const getCellsToRemove = (difficulty: string) => {
+  switch (difficulty) {
+    case "Easy":
+      return 30;
+    case "Medium":
+      return 40;
+    case "Hard":
+      return 50;
+    default:
+      return 30; // Default to Easy if something goes wrong
+  }
+};
