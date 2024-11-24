@@ -55,7 +55,7 @@ const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
                     key={`${rowIndex}-${colIndex}`}
                     onClick={() =>
                       setSelectedCell({ row: rowIndex, col: colIndex })
-                    } // Set the selected cell
+                    }
                   >
                     <input
                       type="text"
@@ -69,15 +69,22 @@ const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
                           (value >= 1 && value <= 9) ||
                           e.target.value === ""
                         ) {
-                          const updatedBoard = [...board];
-
-                          updatedBoard[rowIndex][colIndex] = isNaN(value)
-                            ? 0
-                            : value;
+                          const updatedBoard = board.map((row, rIndex) =>
+                            rIndex === rowIndex
+                              ? row.map((cell, cIndex) =>
+                                  cIndex === colIndex
+                                    ? isNaN(value)
+                                      ? 0
+                                      : value
+                                    : cell
+                                )
+                              : row
+                          );
 
                           dispatch(setBoard(updatedBoard));
                         }
                       }}
+                      onBlur={() => setSelectedCell(null)}
                     />
                   </td>
                 );

@@ -150,3 +150,44 @@ export const getCellsToRemove = (difficulty: string) => {
       return 30; // Default to Easy if something goes wrong
   }
 };
+
+/* alternative way instead of using bitwise operator
+
+function isRowValid(board: number[][], rowIndex: number): boolean {
+  const encounteredNumbers: boolean[] = new Array(9).fill(false);
+
+  for (let i = 0; i < 9; i++) {
+    const cellValue = board[rowIndex][i];
+
+    if (cellValue === 0) continue;
+
+    if (encounteredNumbers[cellValue - 1]) {
+      return false;
+    }
+
+    encounteredNumbers[cellValue - 1] = true;
+  }
+
+  return true; // No duplicates found, row is valid
+}
+
+function isColumnValid(board: number[][], columnIndex: number): boolean {
+  const encounteredNumbers: boolean[] = new Array(9).fill(false);
+
+  for (let i = 0; i < 9; i++) {
+    const cellValue = board[i][columnIndex];
+
+    if (cellValue === 0) continue;
+
+    if (encounteredNumbers[cellValue - 1]) {
+      return false;
+    }
+
+    encounteredNumbers[cellValue - 1] = true;
+  }
+
+  return true; // No duplicates found, column is valid
+}
+
+
+*/
