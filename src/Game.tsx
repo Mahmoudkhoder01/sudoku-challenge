@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Difficulty from "./components/Difficulty/Difficulty";
 import GameTable from "./components/GameTable/GameTable";
 import Header from "./components/Header/Header";
@@ -8,7 +8,16 @@ import { AppDispatch, RootState } from "./redux/store";
 import { setBoard } from "./redux/BoardSlice";
 import Button from "./components/Button/Button";
 import { HiOutlineLightBulb } from "react-icons/hi";
-import { handleHintClick } from "./Functions/Buttons";
+import { CiCircleCheck } from "react-icons/ci";
+import { IoExtensionPuzzle } from "react-icons/io5";
+import { handleCheckClick, handleHintClick } from "./Functions/Buttons";
+
+interface ButtonProps {
+  title: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+}
+
 function Game() {
   const [selectedCell, setSelectedCell] = useState<{
     row: number;
@@ -46,6 +55,32 @@ function Game() {
     }
   };
 
+  const buttons: ButtonProps[] = [
+    {
+      title: "Hint",
+      icon: <HiOutlineLightBulb size={24} />,
+      onClick: () =>
+        handleHintClick(
+          dispatch,
+          fullBoard,
+          board,
+          lockedCells,
+          selectedCell,
+          setSelectedCell
+        ),
+    },
+    {
+      title: "Check Board",
+      icon: <CiCircleCheck size={24} />,
+      onClick: () => handleCheckClick(board, fullBoard),
+    },
+    {
+      title: "Solve Board",
+      icon: <IoExtensionPuzzle size={24} />,
+      onClick: () => dispatch(setBoard(fullBoard)),
+    },
+  ];
+
   return (
     <div className="container">
       <Header />
@@ -58,21 +93,9 @@ function Game() {
 
           <Numbers onNumberClick={handleNumberClick} />
 
-          {/* Button triggers the hint functionality */}
-          <Button
-            title="Hint"
-            icon={<HiOutlineLightBulb size={24} />}
-            onClick={() =>
-              handleHintClick(
-                dispatch,
-                fullBoard,
-                board,
-                lockedCells,
-                selectedCell,
-                setSelectedCell
-              )
-            }
-          />
+          {buttons.map((button, index) => {
+            return <Button key={index} {...button} />;
+          })}
         </div>
       </div>
     </div>

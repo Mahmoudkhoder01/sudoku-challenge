@@ -59,3 +59,20 @@ export const handleHintClick = (
     }
   }
 };
+
+export const handleCheckClick = (board: number[][], fullBoard: number[][]) => {
+  // Iterate over every cell to compare the values
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 9; col++) {
+      // If any cell in the board does not match the fullBoard, it is not solved
+      if (board[row][col] !== fullBoard[row][col]) {
+        console.log("Still working on it!");
+        return false; // The board is not solved
+      }
+    }
+  }
+
+  // If all cells match, the Sudoku is solved
+  console.log("Congrats! You solved it!");
+  return true; // The board is solved
+};
