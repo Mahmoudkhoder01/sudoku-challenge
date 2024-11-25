@@ -1,0 +1,23 @@
+.uploadButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 24px;
+  color: #007bff;
+}
+
+.uploadText {
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.processText {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

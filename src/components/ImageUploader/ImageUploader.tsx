@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import Tesseract from "tesseract.js";
 import { setBoard } from "../../redux/BoardSlice";
+import { FaUpload } from "react-icons/fa";
+import "./ImageUploader.css";
 
 const ImageUploader = () => {
   const [image, setImage] = useState<File | null>(null);
-
   const [status, setStatus] = useState<string>("");
-
   const dispatch = useDispatch();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,50 +16,52 @@ const ImageUploader = () => {
     }
   };
 
-  const parseSudokuFromText = (text: string): number[][] => {
-    // Split text into rows, filtering out empty lines
-    const rows = text.split("\n").filter((row) => row.trim() !== "");
-
-    // Parse each row into an array of exactly 9 numbers, replacing spaces or non-digits with 0
-    const board = rows.map((row) => {
-      const cells = row.match(/\d| /g) || []; // Match digits or spaces
-
-      // Map to a row of exactly 9 cells, replacing spaces with 0
-      return Array(9)
-        .fill(0)
-        .map((_, idx) => {
-          const cell = cells[idx];
-          return cell === " " || !cell ? 0 : parseInt(cell, 10);
-        });
-    });
-
-    // Ensure the board has exactly 9 rows, filling missing rows with zeros
-    while (board.length < 9) {
-      board.push(Array(9).fill(0));
-    }
-
-    return board;
-  };
-
-  const processImage = async () => {
+  const processImageWithCanvas = async () => {
     if (!image) return;
 
     setStatus("Processing image...");
     const reader = new FileReader();
 
-    reader.onload = async () => {
-      const imgData = reader.result;
+    reader.onload = async (e) => {
+      const target = e.target as FileReader;
+      if (!target.result) {
+        console.error("Error: Image load failed");
+        return;
+      }
 
-      if (typeof imgData === "string") {
+      const img = new Image();
+      img.src = target.result as string;
+
+      img.onload = async () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) return;
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const gray = 0.3 * data[i] + 0.59 * data[i + 1] + 0.11 * data[i + 2];
+          data[i] = data[i + 1] = data[i + 2] = gray;
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        const imgDataUrl = canvas.toDataURL();
         try {
-          // Perform OCR
-          const { data } = await Tesseract.recognize(imgData, "eng", {
-            logger: (m) => console.log(m), // Log OCR progress
+          const { data } = await Tesseract.recognize(imgDataUrl, "eng", {
+            logger: (m) => console.log(m),
           });
-          console.log("board uploaded", data.text);
 
-          const board = parseSudokuFromText(data.text);
+          console.log("Extracted Text:", data.text);
 
+          // Process the text with consideration for cell positions
+          const board = preprocessExtractedText(data.text);
           dispatch(setBoard(board));
 
           setStatus("Image processed successfully!");
@@ -67,16 +69,81 @@ const ImageUploader = () => {
           console.error(error);
           setStatus("Error processing image. Please try again.");
         }
-      }
+      };
     };
 
     reader.readAsDataURL(image);
   };
 
+  const preprocessExtractedText = (text: string): number[][] => {
+    // Split the text into rows and remove empty lines
+    const rows = text.split("\n").filter((row) => row.trim() !== "");
+
+    // Process each row to ensure proper cell counting
+    const board = rows.map((row) => {
+      // First, normalize the row text by replacing multiple spaces with single spaces
+      const normalizedRow = row.trim().replace(/\s+/g, " ");
+
+      // Split the row into cells, preserving empty spaces
+      const cells = normalizedRow.split(" ");
+
+      // Calculate the expected positions of numbers based on the cell width
+      const cellWidth = Math.ceil(normalizedRow.length / 9);
+
+      // Create an array to store the processed row
+      const processedRow: number[] = Array(9).fill(0);
+
+      // Map the detected numbers to their correct positions
+      cells.forEach((cell, index) => {
+        if (/\d/.test(cell)) {
+          const number = parseInt(cell, 10);
+          if (!isNaN(number) && number >= 1 && number <= 9) {
+            // Calculate the position based on the cell's position in the original text
+            const position = Math.min(
+              Math.floor(index * (9 / cells.length)),
+              8
+            );
+            processedRow[position] = number;
+          }
+        }
+      });
+
+      return processedRow;
+    });
+
+    // Ensure we have exactly 9 rows
+    while (board.length < 9) {
+      board.push(Array(9).fill(0));
+    }
+
+    // Trim to exactly 9 rows if we have more
+    return board.slice(0, 9);
+  };
+
   return (
-    <div>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      {image && <button onClick={processImage}>Process and Solve</button>}
+    <div style={{ textAlign: "center" }}>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        style={{ display: "none" }}
+        id="fileInput"
+      />
+
+      <button
+        onClick={() => document.getElementById("fileInput")?.click()}
+        className="uploadButton"
+      >
+        <FaUpload />
+      </button>
+
+      <p className="uploadText">Upload Sudoku Image</p>
+
+      {image && (
+        <button onClick={processImageWithCanvas} className="processText">
+          Process and Solve
+        </button>
+      )}
       <p>{status}</p>
     </div>
   );

@@ -11,6 +11,8 @@ import { HiOutlineLightBulb } from "react-icons/hi";
 import { CiCircleCheck } from "react-icons/ci";
 import { IoExtensionPuzzle } from "react-icons/io5";
 import { handleCheckClick, handleHintClick } from "./Functions/Buttons";
+import ImageUploader from "./components/ImageUploader/ImageUploader";
+import { isValidEntry } from "./Functions/sudoku";
 
 interface ButtonProps {
   title: string;
@@ -41,7 +43,9 @@ function Game() {
     if (selectedCell) {
       const { row, col } = selectedCell;
 
-      if (!lockedCells.has(`${row}-${col}`)) {
+      const isValid = isValidEntry(board, lockedCells, row, col, number);
+
+      if (!lockedCells.has(`${row}-${col}`) && isValid) {
         const updatedBoard = board.map((rowArray, rowIndex) =>
           rowIndex === row
             ? rowArray.map((cell, colIndex) =>
@@ -96,6 +100,8 @@ function Game() {
           {buttons.map((button, index) => {
             return <Button key={index} {...button} />;
           })}
+
+          <ImageUploader />
         </div>
       </div>
     </div>
