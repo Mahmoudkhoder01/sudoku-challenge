@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { setBoard } from "../redux/BoardSlice";
+import { AlertStates } from "../Game";
 
 // State type
 type SelectedCell = { row: number; col: number } | null;
@@ -83,19 +84,47 @@ export const handleHintClick = (
  *
  * @returns boolean - Returns true if the board is solved, false if it's not.
  */
-export const handleCheckClick = (board: number[][], fullBoard: number[][]) => {
-  // Iterate over every cell to compare the values
+export const handleCheckClick = (
+  board: number[][],
+  fullBoard: number[][],
+  setAlert: Dispatch<SetStateAction<AlertStates | null>>
+) => {
+  let isBoardFilled = true;
+
+  // Iterate through the board and check both conditions in a single loop
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 9; col++) {
-      // If any cell in the board does not match the solved board, the Sudoku is not yet solved
-      if (board[row][col] !== fullBoard[row][col]) {
-        console.log("Still working on it!");
-        return false; // The board is not solved
+      // Check if the board is filled
+      if (board[row][col] === 0) {
+        isBoardFilled = false;
+      }
+
+      // If the board is filled, check for errors
+      if (isBoardFilled && board[row][col] !== fullBoard[row][col]) {
+        setAlert({
+          type: "error",
+          message: "You have errors to fix. Please check the numbers.",
+        });
+        return false; // There are errors in the board
       }
     }
   }
 
-  // If all cells match, the Sudoku is solved
-  console.log("Congrats! You solved it!");
-  return true; // The board is solved
+  // If the board is not fully filled
+  if (!isBoardFilled) {
+    setAlert({
+      type: "info",
+      message: "The board isn't fully completed yet. Keep going!",
+    });
+    return false; // The board is not filled yet
+  }
+
+  // If there are no errors and the board is complete, it's solved
+  setAlert({
+    type: "success",
+    message:
+      "Congratulations! You've successfully completed the Sudoku puzzle!",
+  });
+
+  return true; // The board is solved and correct
 };
