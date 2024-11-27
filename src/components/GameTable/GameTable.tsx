@@ -1,16 +1,19 @@
-import { useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../redux/store";
 import { generateNewGame, setBoard } from "../../redux/BoardSlice";
 import "./GameTable.css";
 import { setDifficulty } from "../../redux/DifficultySlice";
+import { isValidEntry } from "../../Functions/sudoku";
+import { AlertStates } from "../../Game";
 
 // Define the type for props
 interface GameTableProps {
   setSelectedCell: (cell: { row: number; col: number } | null) => void; // Callback to set the selected cell
+  setAlert: Dispatch<SetStateAction<AlertStates | null>>;
 }
 
-const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
+const GameTable: React.FC<GameTableProps> = ({ setSelectedCell, setAlert }) => {
   // Access the board state from the Redux store
   const board = useSelector((state: RootState) => state.board.board);
 
@@ -47,6 +50,60 @@ const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
     }
   }, [board, dispatch]); // This effect runs when the board or dispatch changes
 
+  /**
+   * Handles the input change for a Sudoku cell, validating the entered number
+   * according to Sudoku rules and updating the board if the entry is valid.
+   * Displays an error alert if the number entry violates the rules.
+   *
+   * @param e - The change event triggered by the input field.
+   * @param rowIndex - The row index of the changed cell (0-based).
+   * @param colIndex - The column index of the changed cell (0-based).
+   */
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>, // Event triggered by the input change
+    rowIndex: number, // The row index of the changed cell in the Sudoku board
+    colIndex: number // The column index of the changed cell in the Sudoku board
+  ) => {
+    // Parse the input value and convert it to an integer
+    const value = parseInt(e.target.value);
+
+    /**
+     * Validates the entered number to ensure it follows Sudoku rules
+     * for the specific cell, row, column, and 3x3 subgrid.
+     */
+    const isValid = isValidEntry(board, lockedCells, rowIndex, colIndex, value);
+
+    // If the entry violates Sudoku rules, display an error alert and stop further processing
+    if (!isValid) {
+      setAlert({
+        type: "error",
+        message: "Invalid number entry. This violates Sudoku rules.", // Error message for invalid entry
+      });
+      return; // Exit the function early if the entry is not valid
+    }
+
+    // If the value is a valid number between 1-9, or the input is cleared (empty string)
+    if ((value >= 1 && value <= 9) || (e.target.value === "" && isValid)) {
+      // Update the Sudoku board, ensuring immutability
+      const updatedBoard = board.map(
+        (row, rIndex) =>
+          rIndex === rowIndex // If the row is the one being edited
+            ? row.map(
+                (cell, cIndex) =>
+                  cIndex === colIndex // If the column is the one being edited
+                    ? isNaN(value)
+                      ? 0
+                      : value // Set the new value or 0 if input is cleared
+                    : cell // Keep other cells unchanged
+              )
+            : row // Keep the other rows unchanged
+      );
+
+      // Dispatch the updated board state to the Redux store
+      dispatch(setBoard(updatedBoard)); // Update the board in the store
+    }
+  };
+
   return (
     <section className="game">
       <table className="game_board">
@@ -72,30 +129,7 @@ const GameTable: React.FC<GameTableProps> = ({ setSelectedCell }) => {
                       className="sudoku_cell"
                       value={cell !== 0 ? cell : ""} // Display the cell value if it's not 0
                       readOnly={isLocked} // Make the input readonly if the cell is locked
-                      onChange={(e) => {
-                        // Handle the input change
-                        const value = parseInt(e.target.value, 10);
-                        // Only update the cell if the input is a valid number (1-9) or empty
-                        if (
-                          (value >= 1 && value <= 9) ||
-                          e.target.value === ""
-                        ) {
-                          const updatedBoard = board.map((row, rIndex) =>
-                            rIndex === rowIndex
-                              ? row.map((cell, cIndex) =>
-                                  cIndex === colIndex
-                                    ? isNaN(value)
-                                      ? 0 // If the value is not a valid number, set it to 0
-                                      : value // Otherwise, set the value
-                                    : cell
-                                )
-                              : row
-                          );
-
-                          // Dispatch the updated board to Redux
-                          dispatch(setBoard(updatedBoard));
-                        }
-                      }}
+                      onChange={(e) => handleInputChange(e, rowIndex, colIndex)}
                     />
                   </td>
                 );
