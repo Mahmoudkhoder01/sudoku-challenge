@@ -75,6 +75,11 @@ const boardSlice = createSlice({
   },
 });
 
-export const { setBoard, setLockedCells, resetGame, generateNewGame } =
-  boardSlice.actions;
+export const {
+  setBoard,
+  setLockedCells,
+  resetGame,
+  generateNewGame,
+  setFullBoard,
+} = boardSlice.actions;
 export default boardSlice.reducer;

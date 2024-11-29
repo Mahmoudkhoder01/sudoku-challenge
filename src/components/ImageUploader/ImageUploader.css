@@ -9,6 +9,7 @@
 
 .uploadText {
   font-size: 14px;
+  font-family: "Noto Sans", sans-serif;
   margin-top: 5px;
 }
 
@@ -16,8 +17,18 @@
   margin-top: 20px;
   padding: 10px 20px;
   background-color: #007bff;
+  font-family: "Noto Sans", sans-serif;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.image_name {
+  font-size: 12px;
+}
+
+.image_process_status {
+  font-family: "Noto Sans", sans-serif;
+  font-size: 12px;
 }

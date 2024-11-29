@@ -9,7 +9,9 @@ import { AlertStates } from "../../Game";
 
 // Define the type for props
 interface GameTableProps {
-  setSelectedCell: (cell: { row: number; col: number } | null) => void; // Callback to set the selected cell
+  setSelectedCell: React.Dispatch<
+    SetStateAction<{ row: number; col: number } | null | null>
+  >;
   setAlert: Dispatch<SetStateAction<AlertStates | null>>;
 }
 
