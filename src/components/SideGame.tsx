@@ -109,7 +109,7 @@ const SideGame: React.FC<SideGameProps> = ({
         return <Button key={index} {...button} />;
       })}
 
-      <ImageUploader />
+      <ImageUploader setAlert={setAlert} />
     </>
   );
 };

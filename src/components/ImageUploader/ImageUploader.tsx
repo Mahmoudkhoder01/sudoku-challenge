@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { SetStateAction, useState } from "react";
 import { useDispatch } from "react-redux";
 import { createWorker } from "tesseract.js";
 import { setBoard, setFullBoard, setLockedCells } from "../../redux/BoardSlice";
 import { FaUpload } from "react-icons/fa";
 import "./ImageUploader.css";
+import { solveSudoku } from "../../Functions/sudoku";
+import { AlertStates } from "../../Game";
 
-const ImageUploader = () => {
+interface ImageUploaderProps {
+  setAlert: React.Dispatch<SetStateAction<AlertStates | null>>;
+}
+
+const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
   // State to store the uploaded image file
   const [image, setImage] = useState<File | null>(null);
 
@@ -214,10 +220,29 @@ const ImageUploader = () => {
           // Step 4: Terminate the Tesseract.js worker to free up resources
           await (await worker).terminate();
 
+          const newFullBoard = JSON.parse(JSON.stringify(newBoard)); // Deep copy to modify
+
+          const board: number[][] | [] = solveSudoku(newFullBoard);
+
+          if (board.length === 0) {
+            setAlert({
+              type: "error",
+              message:
+                "The uploaded image is unclear or doesn't have a solution. Ensure the Sudoku table is 100% filled, cropped perfectly, and contains only the Sudoku grid (no extra borders or elements).",
+            });
+
+            setStatus("");
+
+            setImage(null);
+            return;
+          }
+
           // Step 5: Dispatch actions to update the Redux state with the board and locked cells
           dispatch(setBoard(newBoard)); // Update the board in the Redux store
+
           dispatch(setLockedCells(lockedCells)); // Update the locked cells in the Redux store
-          dispatch(setFullBoard([])); // Update the full board in the Redux store
+
+          dispatch(setFullBoard(board)); // Update the full board in the Redux store
 
           // Update the status to indicate successful processing
           setStatus("Image processed successfully!");
