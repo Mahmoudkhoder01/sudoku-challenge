@@ -1,15 +1,17 @@
-// BoardSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { generateBoard, removeCellsFromBoard } from "../Functions/sudoku";
+import { hasUniqueSolution } from "../Functions/HasUniqueSolution";
 
 interface BoardState {
   board: number[][];
-  lockedCells: Set<string>;
+  fullBoard: number[][];
+  lockedCells: string[];
 }
 
 const initialState: BoardState = {
   board: [],
-  lockedCells: new Set(),
+  fullBoard: [],
+  lockedCells: [],
 };
 
 const boardSlice = createSlice({
@@ -19,12 +21,18 @@ const boardSlice = createSlice({
     setBoard(state, action: PayloadAction<number[][]>) {
       state.board = action.payload;
     },
-    setLockedCells(state, action: PayloadAction<Set<string>>) {
+    setFullBoard(state, action: PayloadAction<number[][]>) {
+      state.fullBoard = action.payload;
+    },
+    setLockedCells(state, action: PayloadAction<string[]>) {
       state.lockedCells = action.payload;
     },
     resetGame(
       state,
-      action: PayloadAction<{ board: number[][]; lockedCells: Set<string> }>
+      action: PayloadAction<{
+        board: number[][];
+        lockedCells: string[];
+      }>
     ) {
       state.board = action.payload.board;
       state.lockedCells = action.payload.lockedCells;
@@ -32,27 +40,46 @@ const boardSlice = createSlice({
     generateNewGame(state, action: PayloadAction<number>) {
       const difficulty = action.payload;
 
-      const newBoard = generateBoard();
+      let unique = false;
 
-      removeCellsFromBoard(newBoard, difficulty);
+      while (!unique) {
+        // Generate a full valid Sudoku board
+        const newBoard = generateBoard();
 
-      const newLockedCells = new Set<string>();
+        // Save the full board before modifying it
+        state.fullBoard = newBoard.map((row) => [...row]);
 
-      newBoard.forEach((row, rowIndex) => {
-        row.forEach((cell, colIndex) => {
-          if (cell !== 0) {
-            newLockedCells.add(`${rowIndex}-${colIndex}`);
-          }
-        });
-      });
+        // Check if the board has a unique solution
+        unique = hasUniqueSolution(newBoard);
 
-      state.board = newBoard;
+        removeCellsFromBoard(newBoard, difficulty);
 
-      state.lockedCells = newLockedCells;
+        if (unique) {
+          // Assign the board to the state if unique
+          state.board = newBoard;
+
+          // Generate locked cells
+          const newLockedCells = new Set<string>();
+          newBoard.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+              if (cell !== 0) {
+                newLockedCells.add(`${rowIndex}-${colIndex}`);
+              }
+            });
+          });
+
+          state.lockedCells = Array.from(newLockedCells); // Convert Set to Array
+        }
+      }
     },
   },
 });
 
-export const { setBoard, setLockedCells, resetGame, generateNewGame } =
-  boardSlice.actions;
+export const {
+  setBoard,
+  setLockedCells,
+  resetGame,
+  generateNewGame,
+  setFullBoard,
+} = boardSlice.actions;
 export default boardSlice.reducer;

@@ -1,0 +1,27 @@
+.status_numbers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 150px;
+  margin: 0 auto;
+}
+
+.status_number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Noto Sans", sans-serif;
+  font-size: 26px;
+  font-weight: bold;
+  padding: 20px 0;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.status_number:hover {
+  background-color: #d6d6d6; /* Slightly darker shade on hover */
+}
+
+.status_number:active {
+  background-color: #b3b3b3; /* Even darker shade on active click */
+}
