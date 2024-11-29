@@ -24,6 +24,7 @@
   z-index: 1000;
   font-family: "Noto Sans", sans-serif;
   gap: 10px;
+  max-width: 40%;
 }
 
 .alert button {
