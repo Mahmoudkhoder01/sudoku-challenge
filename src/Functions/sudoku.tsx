@@ -388,3 +388,83 @@ export const isValidEntry = (
 
 //   return true; // No duplicates found, the column is valid
 // }
+
+/**
+ * Function to solve the Sudoku board using backtracking.
+ * The board is assumed to be partially filled with some numbers already in place.
+ * This function modifies the board in place.
+ *
+ * @param board - The current state of the Sudoku board (9x9 grid).
+ * @returns `true` if the board is solvable, otherwise `false`.
+ */
+export function solveSudoku(board: number[][]): number[][] {
+  // Helper function to check if a number is valid at a specific row, column
+  function isValid(
+    board: number[][],
+    row: number,
+    col: number,
+    num: number
+  ): boolean {
+    // Check the row
+    for (let i = 0; i < 9; i++) {
+      if (board[row][i] === num) return false;
+    }
+
+    // Check the column
+    for (let i = 0; i < 9; i++) {
+      if (board[i][col] === num) return false;
+    }
+
+    // Check the 3x3 subgrid
+    const startRow = Math.floor(row / 3) * 3;
+    const startCol = Math.floor(col / 3) * 3;
+    for (let i = startRow; i < startRow + 3; i++) {
+      for (let j = startCol; j < startCol + 3; j++) {
+        if (board[i][j] === num) return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Helper function to find the next empty cell (0)
+  function findEmptyCell(board: number[][]): [number, number] | null {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        if (board[row][col] === 0) {
+          return [row, col];
+        }
+      }
+    }
+    return null; // No empty cell, board is solved
+  }
+
+  // Backtracking function to solve the board
+  function backtrack(board: number[][]): boolean {
+    const emptyCell = findEmptyCell(board);
+    if (!emptyCell) {
+      return true; // No empty cells left, the board is solved
+    }
+
+    const [row, col] = emptyCell;
+
+    // Try placing numbers from 1 to 9
+    for (let num = 1; num <= 9; num++) {
+      if (isValid(board, row, col, num)) {
+        board[row][col] = num; // Place the number
+
+        if (backtrack(board)) {
+          return true; // If solved, return true
+        }
+
+        // If placing num didn't work, backtrack
+        board[row][col] = 0;
+      }
+    }
+
+    return false; // Trigger backtracking if no valid number is found
+  }
+
+  const isSolved = backtrack(board);
+  return isSolved ? board : []; // Return the solved board, or null if unsolvable
+}
