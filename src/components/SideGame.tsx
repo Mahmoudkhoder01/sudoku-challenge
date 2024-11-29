@@ -109,7 +109,7 @@ const SideGame: React.FC<SideGameProps> = ({
         return <Button key={index} {...button} />;
       })}
 
-      <ImageUploader setAlert={setAlert} />
+      <ImageUploader setAlert={setAlert} setSelectedCell={setSelectedCell} />
     </>
   );
 };
