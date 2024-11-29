@@ -1,4 +1,4 @@
-import React, { SetStateAction, useState } from "react";
+import React, { SetStateAction, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { createWorker } from "tesseract.js";
 import { setBoard, setFullBoard, setLockedCells } from "../../redux/BoardSlice";
@@ -17,6 +17,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
 
   // State to store the current status of image processing (e.g., success, error, or progress message)
   const [status, setStatus] = useState<string>("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initializes the Redux `dispatch` function for dispatching actions to the Redux store
   const dispatch = useDispatch();
@@ -137,14 +139,15 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
   };
 
   /**
-   * Extracts the first number found in a given string or value.
+   * Extracts the first number between 1 and 9 found in a given string or value.
    * @param value - The value to process (string or other types).
-   * @returns The extracted number or 0 if no number is found.
+   * @returns The extracted number between 1 and 9, or 0 if no number is found.
    */
   const extractNumber = (value: string): number => {
-    // Match the first sequence of digits in the string
-    const match = value.match(/\d+/);
-    // If a number is found, parse it into an integer, otherwise return 0
+    // Match the first single-digit number between 1 and 9
+    const match = value.match(/[1-9]/);
+
+    // If a number is found, return it as an integer, otherwise return 0
     return match ? parseInt(match[0], 10) : 0;
   };
 
@@ -228,12 +231,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
             setAlert({
               type: "error",
               message:
-                "The uploaded image is unclear or doesn't have a solution. Ensure the Sudoku table is 100% filled, cropped perfectly, and contains only the Sudoku grid (no extra borders or elements).",
+                "The uploaded image is unclear or doesn't have a solution. Ensure the Sudoku table is 100% filled, cropped perfectly, and contains only the Sudoku grid (no extra borders or elements). Or try a different board",
             });
 
             setStatus("");
 
             setImage(null);
+
+            if (fileInputRef.current) {
+              fileInputRef.current.value = "";
+            }
+
             return;
           }
 
@@ -249,9 +257,53 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
         } catch (error) {
           // Handle errors during OCR or processing
           console.error(error);
-          setStatus("Error processing image. Please try again.");
+          setAlert({
+            type: "error",
+            message: "Error processing image. Please try again.",
+          });
+
+          setImage(null);
+
+          if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+          }
+
+          setStatus("");
         }
       };
+
+      img.onerror = () => {
+        console.error("Error: Failed to load image.");
+        setAlert({
+          type: "error",
+          message: "Failed to load image. Please upload a valid image",
+        });
+
+        setImage(null);
+
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+
+        setStatus("");
+      };
+    };
+
+    reader.onerror = () => {
+      console.error("Error: Failed to read the file.");
+
+      setAlert({
+        type: "error",
+        message: "Error: Failed to read the file. Please try again.",
+      });
+
+      setImage(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setStatus("");
     };
 
     // Read the uploaded image file as a Data URL (Base64 encoding)
@@ -266,6 +318,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
         accept="image/*"
         onChange={handleImageUpload}
         style={{ display: "none" }}
+        ref={fileInputRef}
         id="fileInput"
       />
 
