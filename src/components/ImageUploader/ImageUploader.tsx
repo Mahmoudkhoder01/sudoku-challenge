@@ -9,9 +9,15 @@ import { AlertStates } from "../../Game";
 
 interface ImageUploaderProps {
   setAlert: React.Dispatch<SetStateAction<AlertStates | null>>;
+  setSelectedCell: React.Dispatch<
+    SetStateAction<{ row: number; col: number } | null | null>
+  >;
 }
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
+const ImageUploader: React.FC<ImageUploaderProps> = ({
+  setAlert,
+  setSelectedCell,
+}) => {
   // State to store the uploaded image file
   const [image, setImage] = useState<File | null>(null);
 
@@ -159,6 +165,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ setAlert }) => {
   const processImageWithCanvas = async () => {
     // Check if an image is uploaded; if not, exit early
     if (!image) return;
+
+    setSelectedCell(null);
 
     // Update the UI to show that the image is being processed
     setStatus("Processing image...");
